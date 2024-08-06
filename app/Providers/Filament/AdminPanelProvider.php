@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Resources\AdminResource\Widgets\PatientTypeOverview;
+use App\Filament\Resources\CustomLogResource;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -18,6 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,7 +55,14 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                ActivitylogPlugin::make()
+                    ->navigationGroup('Activity Log')
+                    ->label('Log')
+                    ->pluralLabel('Logs')
+                    // ->resource(CustomLogResource::class),
+
+                    ->authorize(fn () => auth()->user()->hasRole('super_admin')),
             ])
             ->authMiddleware([
                 Authenticate::class,
